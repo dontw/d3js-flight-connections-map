@@ -11,5 +11,8 @@
   "devDependencies": {
     "browser-sync": "^2.18.12",
     "gulp": "^3.9.1"
+  },
+  "dependencies": {
+    "world-atlas": "^1.1.4"
   }
 }
