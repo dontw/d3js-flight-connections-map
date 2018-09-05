@@ -4,15 +4,17 @@
 <head>
   <meta charset="utf-8">
   <style>
+    /* brown#986a4e gold#87754e */
+
     .country {
-      fill: lightgray;
-      stroke: darkgrey;
+      fill: #333333;
+      stroke: #555555;
       stroke-width: 1px;
     }
 
-    .country:hover {
+    /* .country:hover {
       fill: darkgrey;
-    }
+    } */
 
     div.tooltipDestination {
       position: absolute;
@@ -35,11 +37,15 @@
       height: 16px;
       padding: 2px;
       font: 12px sans-serif;
-      background: green;
+      background: red;
       border: 0px;
       border-radius: 0px;
       pointer-events: none;
       padding-top: 5px;
+    }
+
+    .card-text {
+      font-family: monospace;
     }
   </style>
 </head>
@@ -52,16 +58,25 @@
     var originGeo = [121.234528, 25.079312];
     var originName = 'TPE';
     var destinations = [
-      { 'coord': [127.694489, 26.247784], 'name': 'OKA' },
-      { 'coord': [135.516754, 34.410246], 'name': 'KIX' },
-      { 'coord': [100.624176, 13.959317], 'name': 'BKK' },
-      { 'coord': [105.834160, 21.027763], 'name': 'BKK' },
-      { 'coord': [114.109497, 22.396427], 'name': 'HKG' },
-      { 'coord': [113.543877, 22.198746], 'name': 'HKG' },
+      //2020
+      { 'coord': [127.694489, 26.247784], 'name': 'OKA', 'year': '2020' },
+      { 'coord': [135.516754, 34.410246], 'name': 'KIX', 'year': '2020' },
+      { 'coord': [100.624176, 13.959317], 'name': 'BKK', 'year': '2020' },
+      { 'coord': [105.834160, 21.027763], 'name': 'HAN', 'year': '2020' },
+      { 'coord': [114.109497, 22.396427], 'name': 'HKG', 'year': '2020' },
+      { 'coord': [113.543877, 22.198746], 'name': 'MFM', 'year': '2020' },
+
+      //2021
+      { 'coord': [130.451004, 33.585899], 'name': 'FUK', 'year': '2021' },
+      { 'coord': [140.386001, 35.764701], 'name': 'NRT', 'year': '2021' },
+      { 'coord': [140.917007, 38.139701], 'name': 'SDJ', 'year': '2021' },
+      { 'coord': [141.692001, 42.775199], 'name': 'CTS', 'year': '2021' },
+      { 'coord': [101.709999, 2.7455799], 'name': 'KUL', 'year': '2021' },
+      { 'coord': [115.166999, -8.748169], 'name': 'DPS', 'year': '2021' },
     ];
     var svg;
     var projection;
-    var speed = 1000;//km/sec
+    var speed = 2000;//km/sec
     var tooltip = d3.select('#map').append('div')
       .attr('class', 'tooltipDestination')
       .style('opacity', 0);
@@ -91,6 +106,7 @@
       var destinationPos = projection(destination.coord);
       var connection = [originPos, destinationPos];
       var destinationName = destination.name;
+      var destinationYear = destination.year;
       var originGeo = this.originGeo;
       var destinationGeo = destination.coord;
       var svg = this.svg;
@@ -111,7 +127,7 @@
           }
           return getArc(d, s);
         })
-        .style('stroke', 'red')
+        .style('stroke', '#ffe2a0') //正在畫ㄉ線
         .style('stroke-width', 2)
         .style('fill', 'none')
         .transition()
@@ -124,16 +140,33 @@
         })
         .on('end', function (d) {
           var c = connection[1];
-          svg.append('circle')
-            .attr('cx', c[0])
-            .attr('cy', c[1])
-            .attr('r', 0)
-            .attr('class', 'destCircleInner')
-            .style('fill', 'red')
-            .style('fill-opacity', '1')
-            .transition()
-            .duration(300)
-            .attr('r', '3px');
+
+          if (destinationYear === '2020') {
+            svg.append('circle')
+              .attr('cx', c[0])
+              .attr('cy', c[1])
+              .attr('r', 0)
+              .attr('class', 'destCircleInner')
+              .style('fill', '#ffe2a0')// 2020 's destionation point color
+              .style('fill-opacity', '1')
+              .transition()
+              .duration(300)
+              .attr('r', '3px');
+          }
+
+          if (destinationYear === '2021') {
+            svg.append('circle')
+              .attr('cx', c[0])
+              .attr('cy', c[1])
+              .attr('r', 0)
+              .attr('class', 'destCircleInner')
+              .style('fill', 'red')// 2020 's destionation point color
+              .style('fill-opacity', '1')
+              .transition()
+              .duration(300)
+              .attr('r', '3px');
+          }
+
           svg.append('circle')
             .attr('cx', c[0])
             .attr('cy', c[1])
@@ -144,28 +177,51 @@
             .transition()
             // .duration(300)
             .attr('r', '10px');
+
+          svg.append('rect')//destination's rect
+            .attr('x', c[0] + 5)
+            .attr('y', c[1] + 5)
+            .attr('height', '36px')
+            .attr('width', '42px')
+            .style('fill', 'white')
+
+          svg.append('text')
+            .datum(destinationName)
+            .text(destinationName => destinationName)
+            .attr('class', 'card-text')
+            .attr('x', c[0] + 14)
+            .attr('y', c[1] + 20)
+
+          svg.append('text')
+            .datum(destinationYear)
+            .text(destinationYear => destinationYear)
+            .attr('class', 'card-text')
+            .attr('x', c[0] + 11)
+            .attr('y', c[1] + 35)
+
+
           svg.append('circle')
             .datum(c)
             .attr('cx', c[0])
             .attr('cy', c[1])
             .attr('r', 0)
             .style('class', 'destCircleMouse')
-            .style('fill', 'steelblue')
+            .style('fill', '#ffe2a0')
             .style('fill-opacity', '1')
-            .on('mouseover', function (d) {
-              tooltip.html('<span style="color:white">' + destinationName + '</span>')
-                .attr('class', 'tooltipDestination')
-                .style('left', d[0] + 12 + 'px')
-                .style('top', d[1] - 20 + 'px')
-                .transition()
-                .duration(700)
-                .style('opacity', 1)
-            })
-            .on('mouseout', function (d) {
-              tooltip.transition()
-                .duration(700)
-                .style('opacity', 0)
-            })
+            // .on('mouseover', function (d) {
+            //   tooltip.html('<span style="color:white">' + destinationName + '</span>')
+            //     .attr('class', 'tooltipDestination')
+            //     .style('left', d[0] + 12 + 'px')
+            //     .style('top', d[1] - 20 + 'px')
+            //     .transition()
+            //     .duration(700)
+            //     .style('opacity', 1)
+            // })
+            // .on('mouseout', function (d) {
+            //   tooltip.transition()
+            //     .duration(700)
+            //     .style('opacity', 0)
+            // })
             .transition()
             .duration(300)
             .attr('r', '3px')
@@ -178,23 +234,23 @@
               d3.select('.arc' + index)
                 .transition()
                 .duration(2000)
-                // .style('stroke-opacity', '0')
-                .style('stroke', 'grey')
-                .style('stroke-width', '2') //結束時的狀態
+                .style('stroke-opacity', '1')
+                .style('stroke', 'white')
+                .style('stroke-width', '0') //結束時的狀態
                 .on('end', function (d) {
                   if (index === destinations.length - 1) {
-                    svg.selectAll('.destCircleInner').remove();
-                    svg.selectAll('.destCircleOuter').remove();
-                    svg.selectAll('.destCircleMouse').remove();
-                    for (i = 0; i < destinations.length; i++) {
-                      svg.selectAll('.arc' + i).remove();
-                    }
+                    // svg.selectAll('.destCircleInner').remove();
+                    // svg.selectAll('.destCircleOuter').remove();
+                    // svg.selectAll('.destCircleMouse').remove();
+                    // for (i = 0; i < destinations.length; i++) {
+                    //   svg.selectAll('.arc' + i).remove();
+                    // }
                   }
                   var nextIndex = index + 1;
                   if (nextIndex < destinations.length) {
                     drawConnection(nextIndex);
                   } else {
-                    drawConnection(0);
+                    // drawConnection(0);
                   }
                 })
             });
@@ -207,16 +263,16 @@
 
     function drawMap(originName, originGeo, destinations) {
       var countries, height, path, projection, scale, svg, width;
-      var width = 1080;
-      var height = 660;
-      var center = [121, 55];
-      var scale = 500;
-      projection = d3.geoMercator().scale(scale).translate([width / 2, 0]).center(center);
+      var width = 1380;
+      var height = 700;
+      var center = [50, 75];
+      var scale = 210;
+      projection = d3.geoMercator().scale(scale).translate([width / 1.6, 0]).center(center).rotate([-160, 0]);
       path = d3.geoPath().projection(projection);
       svg = d3.select('#map').append('svg')
         .attr('height', height)
         .attr('width', width)
-        .style('background', '#C1E1EC');
+        .style('background', '#41464b');//海ㄉ顏色
       countries = svg.append("g");
       d3.json('50m.json', function (data) {
         countries.selectAll('.country')
@@ -235,7 +291,7 @@
         .attr('cy', function (d) { return projection(d)[1]; })
         .attr('r', '3px')
         .style('opacity', 1)
-        .attr('fill', 'green')
+        .attr('fill', 'red')
         .attr('class', 'circleOrigin')
       source
         .data([originGeo]).enter()
@@ -262,7 +318,9 @@
         });
       this.svg = svg;
       this.projection = projection;
-      this.drawConnections();
+      setTimeout(() => {
+        this.drawConnections();
+      }, 1000);
     };
     this.drawMap(this.originName, this.originGeo, this.destinations);
   </script>
